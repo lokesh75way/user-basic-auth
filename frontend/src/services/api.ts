@@ -10,11 +10,9 @@ export const api = createApi({
     prepareHeaders: (headers, { getState }) => {
       // Access the state from Redux
       const token = (getState() as RootState).auth.accessToken;
-
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }
-
       return headers;
     },
   }),

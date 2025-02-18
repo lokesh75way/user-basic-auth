@@ -1,16 +1,16 @@
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import MenuIcon from "@mui/icons-material/Menu";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import * as React from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
-import { useLogoutMutation } from "../services/api";
-import { useAppSelector } from "../store/store";
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import MenuIcon from '@mui/icons-material/Menu';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import * as React from 'react';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { useLogoutMutation } from '../services/api';
+import { useAppSelector } from '../store/store';
 
 export default function Authanticated() {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
@@ -22,13 +22,15 @@ export default function Authanticated() {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = (route?: "profile" | "logout") => {
+  const handleClose = (route?: 'profile' | 'logout' | 'home' | "group") => {
     return () => {
       if (route) {
-        if (route == "logout") {
+        if (route == 'logout') {
           logoutUser();
+        } else if (route == 'home') {
+          navigation('/');
         } else {
-          navigation("/" + route);
+          navigation('/' + route);
         }
       }
       setAnchorEl(null);
@@ -37,64 +39,66 @@ export default function Authanticated() {
 
   React.useEffect(() => {
     if (!isAuthenticated) {
-      navigation("/login");
+      navigation('/login');
     }
   }, [isAuthenticated]);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar position='static'>
         <Toolbar>
           <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
+            size='large'
+            edge='start'
+            color='inherit'
+            aria-label='menu'
             sx={{ mr: 2 }}
             disabled
           >
             <MenuIcon />
           </IconButton>
           <Box
-            display="flex"
+            display='flex'
             gap={2}
-            alignItems="center"
+            alignItems='center'
             component={Link}
-            to="/"
-            sx={{ textDecoration: "none" }}
+            to='/'
+            sx={{ textDecoration: 'none' }}
           >
-            <Typography color="white" variant="h6" sx={{ flexGrow: 1 }}>
+            <Typography color='white' variant='h6' sx={{ flexGrow: 1 }}>
               App Logo
             </Typography>
           </Box>
           {isAuthenticated && (
-            <Box marginLeft="auto">
+            <Box marginLeft='auto'>
               <IconButton
-                size="large"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
+                size='large'
+                aria-controls='menu-appbar'
+                aria-haspopup='true'
                 onClick={handleMenu}
-                color="inherit"
+                color='inherit'
               >
                 <AccountCircle />
               </IconButton>
               <Menu
-                id="menu-appbar"
+                id='menu-appbar'
                 anchorEl={anchorEl}
                 anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
+                  vertical: 'top',
+                  horizontal: 'right',
                 }}
                 keepMounted
                 transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
+                  vertical: 'top',
+                  horizontal: 'right',
                 }}
                 open={Boolean(anchorEl)}
                 onClose={handleClose()}
               >
-                <MenuItem onClick={handleClose("profile")}>Profile</MenuItem>
-                <MenuItem onClick={handleClose("logout")}>Logout</MenuItem>
+                <MenuItem onClick={handleClose('home')}>Home</MenuItem>
+                <MenuItem onClick={handleClose('profile')}>Profile</MenuItem>
+                <MenuItem onClick={handleClose('group')}>Groups</MenuItem>
+                <MenuItem onClick={handleClose('logout')}>Logout</MenuItem>
               </Menu>
             </Box>
           )}

@@ -18,3 +18,12 @@ interface ApiResponse<T> {
   message: string;
   sucess: boolean
 }
+
+interface Group {
+  _id: string;
+  name: string;
+  active: boolean;
+  privacy: "PUBLIC" | "PRIVATE";
+  admins?: User[];
+  members?: User[];
+}

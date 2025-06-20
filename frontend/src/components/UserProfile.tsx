@@ -5,7 +5,7 @@ type Props = {
 };
 
 function UserProfile(props: Props) {
-  const { name, email, role } = props.data;
+  const { name, email, role, image } = props.data;
   return (
     <Box>
       <Card sx={{ maxWidth: 400, mx: "auto", mt: 10 }}>
@@ -13,7 +13,11 @@ function UserProfile(props: Props) {
           <Box>
             <Box display="flex" alignItems="center">
               <Avatar alt={name} sizes="large" sx={{ width: 100, height: 100 }}>
-                {name}
+                <Box
+                  component="img"
+                  src={image}
+                  sx={{ width: 100, height: 100 }}
+                />
               </Avatar>
               <Box ml={3}>
                 <Typography variant="h5" fontWeight="bold">

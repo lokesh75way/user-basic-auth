@@ -5,16 +5,24 @@ declare module "*.svg" {
   export default src;
 }
 
+type ProviderType = "google" | "manual" | "facebook" | "apple" | "linkedin";
+
 interface User {
   _id: string;
   name: string;
   email: string;
-  active: boolean;
+  active?: boolean;
   role: "USER" | "ADMIN";
+  blocked?: boolean;
+  blockReason?: string;
+  provider: ProviderType;
+  facebookId?: string;
+  image?: string;
+  linkedinId?: string;
 }
 
 interface ApiResponse<T> {
   data: T;
   message: string;
-  sucess: boolean
+  sucess: boolean;
 }

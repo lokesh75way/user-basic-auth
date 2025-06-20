@@ -8,7 +8,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import * as React from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useLogoutMutation } from "../services/api";
 import { useAppSelector } from "../store/store";
 
@@ -35,11 +35,9 @@ export default function Authanticated() {
     };
   };
 
-  React.useEffect(() => {
-    if (!isAuthenticated) {
-      navigation("/login");
-    }
-  }, [isAuthenticated]);
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
 
   return (
     <Box sx={{ flexGrow: 1 }}>

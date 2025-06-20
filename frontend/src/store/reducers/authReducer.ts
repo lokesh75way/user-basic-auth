@@ -1,5 +1,5 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, isAnyOf } from "@reduxjs/toolkit";
 import { api } from "../../services/api";
 
 // Define a type for the slice state
@@ -12,10 +12,33 @@ interface AuthState {
 
 // Define the initial state using that type
 const initialState: AuthState = {
-  accessToken: localStorage.getItem('access_token') ?? "",
-  refreshToken: localStorage.getItem('refresh_token') ?? "",
-  isAuthenticated: Boolean(localStorage.getItem('access_token')),
+  accessToken: localStorage.getItem("access_token") ?? "",
+  refreshToken: localStorage.getItem("refresh_token") ?? "",
+  isAuthenticated: Boolean(localStorage.getItem("access_token")),
   loading: true,
+};
+
+const _setTokens = (
+  state: AuthState,
+  data: { accessToken: string; refreshToken: string }
+) => {
+  localStorage.setItem("access_token", data.accessToken);
+  localStorage.setItem("refresh_token", data.refreshToken);
+  state.accessToken = data.accessToken;
+  state.refreshToken = data.refreshToken;
+  state.isAuthenticated = true;
+  state.loading = false;
+  return state;
+};
+
+const _resetTokens = (state: AuthState) => {
+  localStorage.setItem("access_token", "");
+  localStorage.setItem("refresh_token", "");
+  state.accessToken = "";
+  state.refreshToken = "";
+  state.isAuthenticated = false;
+  state.loading = false;
+  return state;
 };
 
 export const authSlice = createSlice({
@@ -29,50 +52,53 @@ export const authSlice = createSlice({
       state,
       action: PayloadAction<{ accessToken: string; refreshToken: string }>
     ) => {
-      state.accessToken = action.payload.accessToken;
-      state.refreshToken = action.payload.refreshToken;
-      state.isAuthenticated = true;
+      return _setTokens(state, action.payload);
     },
     resetTokens: (state) => {
-      state.accessToken = "";
-      state.refreshToken = "";
-      state.isAuthenticated = false;
+      return _resetTokens(state);
     },
-
   },
   extraReducers: (builder) => {
     builder
-      .addMatcher(api.endpoints.login.matchPending, (state) => {
-        state.loading = true;
-        return state
-      })
-      .addMatcher(api.endpoints.login.matchFulfilled, (state, action) => {
-        const data = action.payload.data;
-        localStorage.setItem('access_token', data.accessToken)
-        localStorage.setItem('refresh_token', data.refreshToken)
-        state.accessToken = data.accessToken;
-        state.refreshToken = data.refreshToken;
-        state.isAuthenticated = true;
-        state.loading = false;
-        return state
-      })
-      .addMatcher(api.endpoints.login.matchRejected, (state) => {
-        state.accessToken = '';
-        state.refreshToken = '';
-        state.isAuthenticated = false;
-        state.loading = false;
-        return state
-      }),
-      builder
-        .addMatcher(api.endpoints.logout.matchFulfilled, (state) => {
-          localStorage.removeItem('access_token')
-          localStorage.removeItem('refresh_token')
-          state.accessToken = '';
-          state.refreshToken = '';
-          state.isAuthenticated = false;
-          state.loading = false;
-          return state
-        })
+      .addMatcher(
+        isAnyOf(
+          api.endpoints.login.matchPending,
+          api.endpoints.loginByApple.matchPending,
+          api.endpoints.loginByFacebook.matchPending,
+          api.endpoints.loginByGoogle.matchPending,
+          api.endpoints.loginByLinkedIn.matchPending
+        ),
+        (state) => {
+          state.loading = true;
+          return state;
+        }
+      )
+      .addMatcher(
+        isAnyOf(
+          api.endpoints.login.matchFulfilled,
+          api.endpoints.loginByApple.matchFulfilled,
+          api.endpoints.loginByFacebook.matchFulfilled,
+          api.endpoints.loginByGoogle.matchFulfilled,
+          api.endpoints.loginByLinkedIn.matchFulfilled
+        ),
+        (state, action) => {
+          return _setTokens(state, action.payload.data);
+        }
+      )
+      .addMatcher(
+        isAnyOf(
+          api.endpoints.login.matchRejected,
+          api.endpoints.loginByApple.matchRejected,
+          api.endpoints.loginByFacebook.matchRejected,
+          api.endpoints.loginByGoogle.matchRejected,
+          api.endpoints.loginByLinkedIn.matchRejected,
+          api.endpoints.logout.matchFulfilled,
+          api.endpoints.logout.matchRejected
+        ),
+        (state) => {
+          return _resetTokens(state);
+        }
+      );
   },
 });
 

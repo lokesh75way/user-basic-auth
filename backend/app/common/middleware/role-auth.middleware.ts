@@ -5,10 +5,7 @@ import jwt from "jsonwebtoken";
 import process from "process";
 import { type IUser } from "../../user/user.dto";
 
-export const roleAuth = (
-  roles: IUser['role'][],
-  publicRoutes: string[] = []
-) =>
+export const roleAuth = (roles: IUser["role"][], publicRoutes: string[] = []) =>
   expressAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       if (publicRoutes.includes(req.path)) {
@@ -16,15 +13,27 @@ export const roleAuth = (
         return;
       }
       const token = req.headers.authorization?.replace("Bearer ", "");
-
       if (!token) {
         throw createHttpError(401, {
           message: `Invalid token`,
         });
       }
-
-      const decodedUser = jwt.verify(token, process.env.JWT_ACCESS_SECRET!);
-      req.user = decodedUser as IUser;
+      try {
+        const decodedUser = jwt.verify(token, process.env.JWT_SECRET!);
+        req.user = decodedUser as IUser;
+      } catch (error: any) {
+        if (error.message === "jwt expired") {
+          throw createHttpError(401, {
+            message: `Token expired`,
+            data: {
+              type: "TOKEN_EXPIRED",
+            },
+          });
+        }
+        throw createHttpError(400, {
+          message: error.message,
+        });
+      }
       const user = req.user as IUser;
       if (!roles.includes(user.role)) {
         const type =

@@ -1,4 +1,5 @@
 import { Box, CircularProgress, Typography } from "@mui/material";
+import ChangePassword from "../components/ChangePassword";
 import UserProfile from "../components/UserProfile";
 import { useMeQuery } from "../services/api";
 import { useAppSelector } from "../store/store";
@@ -38,6 +39,7 @@ const Profile = () => {
   return (
     <Box>
       <UserProfile data={data.data} />
+      <ChangePassword user={data.data} />
     </Box>
   );
 };

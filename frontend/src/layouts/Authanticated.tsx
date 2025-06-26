@@ -1,5 +1,8 @@
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import MenuIcon from "@mui/icons-material/Menu";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import StreamIcon from "@mui/icons-material/Stream";
+import { Badge, Tooltip } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -9,6 +12,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import * as React from "react";
 import { Link, Navigate, Outlet, useNavigate } from "react-router-dom";
+import { useSocket } from "../providers/SocketProvider";
 import { useLogoutMutation } from "../services/api";
 import { useAppSelector } from "../store/store";
 
@@ -17,6 +21,17 @@ export default function Authanticated() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const navigation = useNavigate();
   const [logoutUser] = useLogoutMutation();
+  const [message, setMessage] = React.useState(false);
+
+  const onMessage = (data: any) => {
+    console.log({ data });
+    setMessage(true);
+  };
+
+  type ScoektData = [{ data: string }, { data: number }];
+  const { connected, data } = useSocket<ScoektData>("message");
+
+  console.log(data[1]);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -65,8 +80,26 @@ export default function Authanticated() {
               App Logo
             </Typography>
           </Box>
+
           {isAuthenticated && (
-            <Box marginLeft="auto">
+            <Box marginLeft="auto" display="flex" alignItems="center" gap={2}>
+              <Tooltip
+                title={`Socket ${connected ? "connected" : "disconnected"}`}
+              >
+                <StreamIcon
+                  fontSize="medium"
+                  sx={{ color: connected ? "white" : "red" }}
+                />
+              </Tooltip>
+              <IconButton
+                onClick={() => setMessage(false)}
+                sx={{ color: "white" }}
+              >
+                <Badge color="warning" variant="dot" invisible={!message}>
+                  <NotificationsIcon />
+                </Badge>
+              </IconButton>
+
               <IconButton
                 size="large"
                 aria-controls="menu-appbar"
